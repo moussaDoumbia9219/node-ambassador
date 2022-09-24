@@ -1,0 +1,12 @@
+{
+  "type": "mysql",
+  "host": "db",
+  "username": "root",
+  "password": "root",
+  "databases": "ambassador",
+  "synchronized": true,
+  "logging": false,
+  "entities": [
+    "src/entity/*.ts"
+  ]
+}
