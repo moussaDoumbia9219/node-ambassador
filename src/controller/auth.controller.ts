@@ -6,9 +6,9 @@ import { sign, verify } from "jsonwebtoken";
 
 export const Register = async (req: Request, res: Response) => {
 
-  const body = req.body;
+  const {password, password_confirm, ...body} = req.body;
 
-  if (body.password !== body.password_confirm) {
+  if (password !== password_confirm) {
     return res.status(404).send(
       {
         message: "password do not match",
@@ -16,23 +16,24 @@ export const Register = async (req: Request, res: Response) => {
     )
   }
 
-  const { password, ...user } = await getRepository(User).save({
-    first_name: body.first_name,
-    last_name: body.last_name,
-    email: body.email,
+  const user = await getRepository(User).save({
+    ...body,
     password: await bcryptjs.hash(body.password, 10),
     is_ambassador: false
 
   })
 
+  delete user.password;
+
   res.send(user)
 }
 
 export const Login = async (req: Request, res: Response) => {
-  const {password, ...user} = await getRepository(User).findOne({
+  const user = await getRepository(User).findOne({
     where: {
       email: req.body.email
-    }
+    },
+    select: ["id", "password"]
   });
 
   if (!user) {
@@ -41,7 +42,7 @@ export const Login = async (req: Request, res: Response) => {
     })
   }
 
-  if (! await bcryptjs.compare(req.body.password, password)) {
+  if (! await bcryptjs.compare(req.body.password, user.password)) {
     return res.status(404).send({
       message: "Invalid credentials"
     });
@@ -62,21 +63,35 @@ export const Login = async (req: Request, res: Response) => {
 }
 
 
-export const AuthenticatedUSer = async (req: Request, res: Response) => { 
-  const jwt = req.cookies["jwt"];
-  const payload: any = verify(jwt, process.env.SECRET_KEY);
+export const AuthenticatedUSer = async (req: Request, res: Response) => {
+  try {
+    const jwt = req.cookies["jwt"];
+    const payload: any = verify(jwt, process.env.SECRET_KEY);
 
-  if (!payload) {
+    if (!payload) {
+      return res.status(404).send({
+        message: "unauthenticated"
+      });
+    }
+
+    const user = await getRepository(User).findOne({
+      where: {
+        id: payload.id
+      }
+    });
+
+    res.send(user);
+  } catch (error) {
     return res.status(404).send({
       message: "unauthenticated"
     });
   }
+}
 
-  const {password, ...user} = await getRepository(User).findOne({
-    where: {
-      id: payload.id
-    }
-  });
+export const Logout = async (req: Request, res: Response) => {
+  res.cookie("jwt", "", { maxAge: 0 });
 
-  res.send(user);
+  res.send({
+    message: "success"
+  })
 }
