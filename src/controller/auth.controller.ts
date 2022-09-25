@@ -64,28 +64,8 @@ export const Login = async (req: Request, res: Response) => {
 
 
 export const AuthenticatedUSer = async (req: Request, res: Response) => {
-  try {
-    const jwt = req.cookies["jwt"];
-    const payload: any = verify(jwt, process.env.SECRET_KEY);
-
-    if (!payload) {
-      return res.status(404).send({
-        message: "unauthenticated"
-      });
-    }
-
-    const user = await getRepository(User).findOne({
-      where: {
-        id: payload.id
-      }
-    });
-
-    res.send(user);
-  } catch (error) {
-    return res.status(404).send({
-      message: "unauthenticated"
-    });
-  }
+  console.log(req);
+  res.send(req["user"]);
 }
 
 export const Logout = async (req: Request, res: Response) => {
@@ -95,3 +75,5 @@ export const Logout = async (req: Request, res: Response) => {
     message: "success"
   })
 }
+
+export const UpdateInfo = async (req: Request, res: Response) => { }
