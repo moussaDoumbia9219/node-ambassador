@@ -3,7 +3,7 @@
   "host": "db",
   "username": "root",
   "password": "root",
-  "databases": "ambassador",
+  "database": "ambassador",
   "synchronized": true,
   "logging": false,
   "entities": [
