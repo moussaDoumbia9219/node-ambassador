@@ -22,7 +22,7 @@ export const AuthMiddleWare = async (req: Request, res: Response, next: Function
     });
 
 
-    await next();
+    next();
   } catch (error) {
     return res.status(404).send({
       message: "unauthenticated"
