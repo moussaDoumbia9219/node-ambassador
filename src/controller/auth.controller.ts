@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { User } from "../entity/user.entity";
 import bcryptjs from "bcryptjs";
+import { sign } from "jsonwebtoken";
 
 export const Register = async (req: Request, res: Response) => {
 
@@ -46,5 +47,16 @@ export const Login = async (req: Request, res: Response) => {
     });
   }
 
-  res.send(user);
+  const token = sign({
+    id: user.id
+  }, process.env.SECRET_KEY);
+
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000// 1 Day
+  })
+
+  res.send({
+    message: "success"
+  });
 }

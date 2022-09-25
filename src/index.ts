@@ -3,6 +3,10 @@ import cors from "cors";
 import { createConnection } from "typeorm";
 import { routes } from "./routes";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 createConnection().then(() => {
   const app = express();
 
